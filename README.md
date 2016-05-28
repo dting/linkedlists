@@ -4,6 +4,8 @@ Notes and simple implementation and tests for linked lists and doubly linked lis
 
 See [solutions branch](https://github.com/dting/linkedlists/tree/solutions) for implementation.
 
+See [dting.github.io/linkedlists](https://dting.github.io/linkedlists) to see tests run.
+
 ## Why use linked lists over arrays? Why not?
   * Arrays
     * Arrays require contigous chunks of memory to be allocated.
