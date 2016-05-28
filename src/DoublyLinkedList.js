@@ -16,6 +16,16 @@ function DoublyLinkedList() {
  * @param element to be added
  */
 DoublyLinkedList.prototype.unshift = function(element) {
+  var node = new DoubleLinkNode(element);
+  if (!this.head) {
+    this.head = node;
+    this.tail = node;
+  } else {
+    node.next = this.head;
+    this.head.prev = node;
+    this.head = node;
+  }
+  this.length++;
 };
 
 /**
@@ -24,9 +34,32 @@ DoublyLinkedList.prototype.unshift = function(element) {
  * @param element to be added
  */
 DoublyLinkedList.prototype.push = function(element) {
+  var node = new DoubleLinkNode(element);
+  if (!this.tail) {
+    this.head = node;
+    this.tail = node;
+  } else {
+    node.prev = this.tail;
+    this.tail.next = node;
+    this.tail = node;
+  }
+  this.length++;
 };
 
 DoublyLinkedList.prototype._nodeAt = function(index) {
+  var current;
+  if (index < this.length / 2) {
+    current = this.head;
+    while (index--) {
+      current = current.next;
+    }
+  } else {
+    current = this.tail;
+    while (++index < this.length) {
+      current = current.prev;
+    }
+  }
+  return current;
 };
 
 /**
@@ -39,6 +72,22 @@ DoublyLinkedList.prototype._nodeAt = function(index) {
 DoublyLinkedList.prototype.insert = function(index, element) {
   if (index > this.length || index < 0) {
     throw new RangeError();
+  }
+  if (index === 0) {
+    this.unshift(element);
+  } else if (index === this.length) {
+    this.push(element);
+  } else {
+    var node = new DoubleLinkNode(element);
+    var next = this._nodeAt(index);
+    var prev = next.prev;
+    // link node to next and prev.
+    node.next = next;
+    node.prev = prev;
+    // link prev and next to node.
+    prev.next = node;
+    next.prev = node;
+    this.length++;
   }
 };
 
@@ -53,6 +102,7 @@ DoublyLinkedList.prototype.get = function(index) {
   if (index >= this.length || index < 0) {
     throw new RangeError();
   }
+  return this._nodeAt(index).element;
 };
 
 /**
@@ -62,12 +112,25 @@ DoublyLinkedList.prototype.get = function(index) {
  * @returns {number} index of first occurrence of element or -1 if not found
  */
 DoublyLinkedList.prototype.indexOf = function(element) {
+  var index = 0;
+  var current = this.head;
+  while (current) {
+    if (current.element === element) {
+      return index;
+    }
+    current = current.next;
+    index++;
+  }
+  return -1;
 };
 
 /**
  * Remove all elements
  */
 DoublyLinkedList.prototype.clear = function() {
+  this.length = 0;
+  this.head = null;
+  this.tail = null;
 };
 
 /**
@@ -80,6 +143,15 @@ DoublyLinkedList.prototype.shift = function() {
   if (this.length === 0) {
     throw new Error("Can't shift an empty list");
   }
+  var current = this.head;
+  this.head = this.head.next;
+  if (this.head) {
+    this.head.prev = null;
+  } else {
+    this.tail = null;
+  }
+  this.length--;
+  return current.element;
 };
 
 /**
@@ -92,9 +164,30 @@ DoublyLinkedList.prototype.pop = function() {
   if (this.length === 0) {
     throw new Error("Can't pop an empty list");
   }
+  var current = this.tail;
+  this.tail = this.tail.prev;
+  if (this.tail) {
+    this.tail.next = null;
+  } else {
+    this.head = null;
+  }
+  this.length--;
+  return current.element;
 };
 
 DoublyLinkedList.prototype._removeNode = function(node) {
+  if (node.prev) {
+    node.prev.next = node.next;
+  } else {
+    this.head = node.next;
+  }
+  if (node.next) {
+    node.next.prev = node.prev;
+  } else {
+    this.tail = node.prev;
+  }
+  this.length--;
+  return node;
 };
 
 /**
@@ -107,6 +200,7 @@ DoublyLinkedList.prototype.removeAt = function(index) {
   if (index >= this.length || index < 0) {
     throw new RangeError();
   }
+  return this._removeNode(this._nodeAt(index)).element;
 };
 
 /**
@@ -116,4 +210,13 @@ DoublyLinkedList.prototype.removeAt = function(index) {
  * @returns {boolean} if anything was removed
  */
 DoublyLinkedList.prototype.remove = function(element) {
+  var current = this.head;
+  while (current) {
+    if (current.element === element) {
+      this._removeNode(current);
+      return true;
+    }
+    current = current.next;
+  }
+  return false;
 };
